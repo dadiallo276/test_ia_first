@@ -1,0 +1,24 @@
+Prochaine étape
+
+Nous allons créer :
+
+service/DocumentService.java
+
+Son rôle :
+
+appeler PdfLoader
+découper le document en morceaux (chunks)
+préparer les segments pour les embeddings
+
+Nous allons alors voir un concept fondamental du RAG :
+
+
+
+
+algo :
+
+for chaque morceau :
+    découper
+    appeler nomic-embed-text
+    récupérer le vecteur
+    sauvegarder dans le store

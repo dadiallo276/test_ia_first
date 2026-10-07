@@ -1,0 +1,182 @@
+Ce qui se passe en mémoire
+
+Avant :
+
+Document
+
+50000 mots
+
+Après :
+
+List<TextSegment>
+
+
+[
+ segment 1,
+ segment 2,
+ segment 3,
+ ...
+ segment 200
+]
+
+
+PDF
+
+ |
+ ▼
+
+PdfLoader
+
+ |
+ ▼
+
+Document
+
+ |
+ ▼
+
+DocumentService
+
+ |
+ ▼
+
+TextSegment
+
+ |
+ ▼
+
+EmbeddingModel
+
+ |
+ ▼
+
+Vector Store
+
+
+
+Document :
+
+"Spring Boot est un framework Java.
+Il simplifie le développement d'applications.
+Il utilise Spring MVC..."
+
+Le splitter fait simplement :
+
+Segment 1
+
+"Spring Boot est un framework Java."
+
+
+Segment 2
+
+"Il simplifie le développement d'applications."
+
+
+Segment 3
+
+"Il utilise Spring MVC..."
+
+C'est équivalent à faire :
+
+String.substring()
+
+
+
+Nouvelle étape : Embedding
+
+Nous allons passer de :
+
+Texte
+
+à :
+
+Vecteur numérique
+
+Exemple simplifié :
+
+Avant :
+
+"Java est un langage"
+
+Après :
+
+[
+ 0.124,
+ -0.532,
+ 0.821,
+ 0.223,
+ ...
+]
+
+
+
+
+
+PDF
+
+ |
+ ▼
+
+PdfLoader
+
+ |
+ ▼
+
+Document
+
+ |
+ ▼
+
+DocumentSplitter
+
+ |
+ ▼
+
+TextSegment
+
+ |
+ ▼
+
+EmbeddingModel  ⭐ (IA)
+
+ |
+ ▼
+
+Embedding
+
+ |
+ ▼
+
+VectorStore
+
+
+
+
+Mais où les mettre ?
+
+C'est le rôle du :
+
+🧠 Vector Store
+
+Il va stocker :
+
+Texte + Vecteur
+
+Exemple :
+
+ID : 1
+
+Texte :
+"Spring Boot est un framework Java"
+
+Vecteur :
+[0.12,0.45,0.89]
+
+
+ID : 2
+
+Texte :
+"Docker permet de créer des conteneurs"
+
+Vecteur :
+[0.75,0.22,0.31]

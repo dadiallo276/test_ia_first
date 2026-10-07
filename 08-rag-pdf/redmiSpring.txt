@@ -1,0 +1,379 @@
+1. Au démarrage de Spring Boot
+
+Tu lances :
+
+mvn spring-boot:run
+
+La JVM appelle :
+
+public static void main(String[] args) {
+
+    SpringApplication.run(RagApplication.class, args);
+
+}
+
+
+Maintenant, on arrive à quelque chose que beaucoup de développeurs utilisent sans vraiment le comprendre.
+
+Ils écrivent simplement :
+
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+
+Et ça fonctionne.
+
+Mais que se passe-t-il réellement ?
+
+1. RagApplication.java
+
+Crée le fichier :
+
+src/main/java/com/diallo/ai/RagApplication.java
+
+Contenu :
+
+package com.diallo.ai;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RagApplication {
+
+    public static void main(String[] args) {
+
+        SpringApplication.run(RagApplication.class, args);
+
+    }
+
+}
+
+C'est tout.
+
+Mais derrière ces 10 lignes se cachent des milliers de lignes de Spring Boot.
+
+2. Que fait Java ?
+
+Lorsque tu exécutes
+
+mvn spring-boot:run
+
+ou
+
+Run As → Java Application
+
+La JVM cherche :
+
+public static void main(...)
+
+Elle exécute :
+
+SpringApplication.run(...)
+
+C'est le point d'entrée de Spring Boot.
+
+3. Que fait SpringApplication.run() ?
+
+Imagine cette méthode comme ceci (ce n'est pas le vrai code, mais une version simplifiée) :
+
+public static void run(Class<?> application){
+
+    créerLeContexteSpring();
+
+    scannerLesPackages();
+
+    créerTousLesBeans();
+
+    injecterLesDépendances();
+
+    démarrerTomcat();
+
+}
+
+Évidemment, le vrai code fait plusieurs milliers de lignes.
+
+Mais l'idée est exactement celle-ci.
+
+4. Le Context Spring
+
+Spring crée ce qu'on appelle un
+
+ApplicationContext
+
+Imagine une immense boîte.
+
+ApplicationContext
+
+│
+
+├── ChatModel
+
+├── EmbeddingModel
+
+├── Assistant
+
+├── ChatController
+
+├── ChatService
+
+├── PdfLoader
+
+├── ObjectMapper
+
+└── etc...
+
+Tous les objets importants vont vivre ici.
+
+5. Le Scan
+
+Spring regarde
+
+com.diallo.ai
+
+puis tous les sous-packages.
+
+com.diallo.ai
+
+│
+
+├── assistant
+
+├── config
+
+├── controller
+
+├── service
+
+├── loader
+
+├── dto
+
+Il cherche les annotations.
+
+Par exemple
+
+@Service
+
+ou
+
+@Configuration
+
+ou
+
+@RestController
+6. Exemple
+
+Supposons que tu écrives
+
+@Service
+public class ChatServiceImpl {
+
+}
+
+Spring dit :
+
+Ah !
+
+Il y a un Service.
+
+Je vais créer UNE instance.
+
+En mémoire :
+
+ApplicationContext
+
+↓
+
+ChatServiceImpl
+
+↓
+
+new ChatServiceImpl()
+
+Tu n'écris jamais
+
+new ChatServiceImpl();
+
+Spring le fait pour toi.
+
+7. Même chose pour ton Assistant
+
+Quand Spring arrive ici :
+
+@Configuration
+public class AiConfiguration {
+
+    @Bean
+    public Assistant assistant(...) {
+
+        ...
+
+    }
+
+}
+
+Il exécute la méthode.
+
+assistant()
+
+Cette méthode retourne
+
+AiServices.builder(...)
+
+Le résultat est stocké dans le Context.
+
+ApplicationContext
+
+↓
+
+Assistant
+
+↓
+
+Proxy LangChain4j
+8. Puis ChatController
+
+Spring voit
+
+@RestController
+public class ChatController {
+
+    private ChatService service;
+
+}
+
+Le constructeur est
+
+public ChatController(ChatService service)
+
+Spring cherche :
+
+Existe-t-il un ChatService ?
+
+Oui.
+
+ChatServiceImpl
+
+Alors il fait
+
+new ChatController(chatServiceImpl);
+
+sans que tu écrives ce code.
+
+9. Puis ChatServiceImpl
+
+Ton constructeur est
+
+public ChatServiceImpl(
+
+        Assistant assistant,
+
+        ProfileExtractor extractor,
+
+        UserProfileService profileService,
+
+        ObjectMapper mapper) {
+
+}
+
+Spring regarde chaque paramètre.
+
+Assistant ?
+
+↓
+
+Oui
+ProfileExtractor ?
+
+↓
+
+Oui
+UserProfileService ?
+
+↓
+
+Oui
+ObjectMapper ?
+
+↓
+
+Oui
+
+Alors Spring fait automatiquement :
+
+new ChatServiceImpl(
+
+assistant,
+
+extractor,
+
+profileService,
+
+mapper
+
+);
+
+Voilà pourquoi tu n'écris jamais :
+
+new ObjectMapper()
+
+new Assistant()
+
+new UserProfileService()
+
+Spring les fournit.
+
+10. C'est ce qu'on appelle l'Injection de dépendances
+
+Avant Spring :
+
+ChatService service = new ChatService();
+
+Avec Spring :
+
+Spring
+
+↓
+
+crée ChatService
+
+↓
+
+te le donne
+11. Pourquoi c'est génial ?
+
+Imagine une classe avec 20 dépendances.
+
+Sans Spring :
+
+new A(
+
+new B(
+
+new C(
+
+new D(
+
+...
+
+Le code devient vite ingérable.
+
+Avec Spring :
+
+public A(
+
+B b,
+
+C c,
+
+D d
+
+)
+
+Spring fait tout le travail.

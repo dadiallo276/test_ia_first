@@ -1,0 +1,16 @@
+✔ LLM
+✔ Prompt
+✔ Token
+✔ Temperature
+✔ ChatModel
+✔ Ollama
+✔ Proxy dynamique
+✔ Reflection
+✔ Spring DI
+✔ AiServices
+✔ @SystemMessage
+✔ @UserMessage
+✔ @MemoryId
+✔ ChatMemory
+✔ REST API
+✔ Profil utilisateur

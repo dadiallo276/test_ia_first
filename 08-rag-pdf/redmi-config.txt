@@ -1,0 +1,225 @@
+config
+
+├── AiConfiguration
+│       |
+│       └── ChatModel
+│       └── Assistant
+│
+├── EmbeddingConfiguration
+│       |
+│       └── EmbeddingModel
+│
+└── RagConfiguration
+        |
+        └── EmbeddingStore
+        
+        
+C'est très important.
+
+Un Vector Store ne stocke pas uniquement un vecteur.
+
+Il stocke :
+
+Embedding
++
+Texte original
++
+Métadonnées
+
+Exemple :
+
+{
+ "text":
+ "Spring Boot utilise Spring MVC",
+
+ "vector":
+ [
+   0.12,
+   0.54,
+   -0.21
+ ],
+
+ "metadata":
+ {
+   "source":"springboot.pdf",
+   "page":10
+ }
+}
+
+C'est pour cela qu'on utilise :
+
+EmbeddingStore<TextSegment>
+3. InMemoryEmbeddingStore
+return new InMemoryEmbeddingStore<>();
+
+Cela signifie :
+
+Stocke les embeddings dans la mémoire RAM.
+
+
+
+Pourquoi commencer par InMemory ?
+
+Parce que nous voulons comprendre le mécanisme.
+
+Plus tard, nous remplacerons :
+
+new InMemoryEmbeddingStore<>()
+
+par :
+
+PostgreSQL + pgvector
+
+ou :
+
+ChromaDB
+
+mais le reste du code restera presque identique.
+
+
+                  PDF
+
+                   |
+                   ▼
+
+              PdfLoader
+
+                   |
+                   ▼
+
+              Document
+
+                   |
+                   ▼
+
+          DocumentSplitter
+
+                   |
+                   ▼
+
+            TextSegment
+
+                   |
+                   ▼
+
+          EmbeddingModel
+
+                   |
+                   ▼
+
+             Embedding
+
+                   |
+                   ▼
+
+          EmbeddingStore
+          
+          
+          
+ Mais il manque encore une pièce
+
+Actuellement nous avons un stockage :
+
+EmbeddingStore
+
+Mais si un utilisateur pose :
+
+"Comment créer un Controller Spring ?"
+
+Qui va chercher les bons morceaux ?
+
+Il nous manque :
+
+ContentRetriever
+
+Son rôle :
+
+Question utilisateur
+
+        |
+        ▼
+
+Transformer la question en embedding
+
+        |
+        ▼
+
+Chercher les vecteurs proches
+
+        |
+        ▼
+
+Retourner les TextSegment pertinents
+Prochaine étape
+
+Nous allons créer :
+
+config/RetrieverConfiguration.java
+
+avec :
+
+EmbeddingStoreContentRetriever
+
+et nous verrons le mécanisme de recherche par similarité :
+
+Question
+   |
+   ▼
+Vecteur
+   |
+   ▼
+Comparaison mathématique
+   |
+   ▼
+Top 3 passages les plus proches
+
+C'est là que le RAG devient vraiment intéressant. 🚀
+
+
+Prochaine étape
+
+Nous allons créer :
+
+config/RetrieverConfiguration.java
+
+avec :
+
+EmbeddingStoreContentRetriever
+
+et nous verrons le mécanisme de recherche par similarité :
+
+Question
+   |
+   ▼
+Vecteur
+   |
+   ▼
+Comparaison mathématique
+   |
+   ▼
+Top 3 passages les plus proches
+
+
+
+
+Question utilisateur
+
+        |
+        ▼
+
+ContentRetriever
+
+        |
+        ▼
+
+Recherche dans le Vector Store
+
+        |
+        ▼
+
+Passages trouvés
+
+        |
+        ▼
+
+llama3.1

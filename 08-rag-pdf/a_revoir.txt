@@ -1,0 +1,12 @@
+StreamingChatModel
+
+
+Ce que tu vas apprendre
+
+En construisant ce projet, tu apprendras aussi des notions d'IA très utilisées en entreprise :
+
+Prompt Engineering : construire un bon prompt.
+Context Engineering : fournir au modèle le bon contexte (profil utilisateur, historique, documents).
+RAG (Retrieval-Augmented Generation) : rechercher des informations dans des PDF ou une base documentaire avant de répondre.
+Mémoire persistante : conserver des informations entre les sessions.
+Outils (Tools) : permettre au modèle d'appeler des fonctions Java (par exemple consulter une base de données ou une API météo).
